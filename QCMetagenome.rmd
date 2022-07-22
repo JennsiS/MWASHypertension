@@ -1,0 +1,32 @@
+---
+title: "Quality Control for metagenome files"
+author: "Jennifer Sandoval"
+date: "21/07/2022"
+output: html_document
+---
+
+```{bash}
+#Creando un nuevo ambiente de conda para analizar variaciones geneticas
+conda create -n mwa
+conda activate mwa
+#Instalando las herramientas necesarias para analizar las variaciones geneticas
+conda install -c bioconda fastqc
+conda install -c bioconda trimmomatic
+```
+
+```{bash}
+#Descomprimiendo todos los archivos fastq.
+gunzip *fastq.gz
+#Ejecutando fastqc para las muestras
+fastqc ERR1398068_1.fastq -o fastQC/
+#Adjuntando todos los archivos de resumen obtenido de las muestras en uno solo
+cat */summary.txt > /mnt/c/Users/bff_n/desktop/Ecoli_QC/fastqc_summary.txt
+#Llevando registro de las mustras que fallaron en los tests de fastqc
+grep -i "FAIL" fastqc_summary.txt > failedqc.txt
+ls *.fastq > ../fastq_list.txt
+
+#Ejecutando trimmomatic para las muestras pareadas
+trimmomatic PE -phred33 ERR1398068_1.fastq ERR1398068_2.fastq 
+ERR1398068_1_paired.fq.gz ERR1398068_1_unpaired.fq.gz ERR1398068_2_paired.fq.gz ERR1398068_2_unpaired.fq.gz ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
+
+```

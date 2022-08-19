@@ -1,3 +1,6 @@
 \trimmomatic
+\megahit_result
+\prokka
+\alignment
 *.fastq.gz
 *.fastq

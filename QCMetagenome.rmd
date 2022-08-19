@@ -12,15 +12,26 @@ conda activate mwa
 #Instalando las herramientas necesarias para analizar las variaciones geneticas
 conda install -c bioconda fastqc
 conda install -c bioconda trimmomatic
+conda install -c bioconda megahit
+
+
+
+sudo cpan -i BioPerl
+conda install -c biobuilds prokka
+cpan install XML::Simple
+
+
+bowtie2
 ```
 
 ```{bash}
 #Descomprimiendo todos los archivos fastq.
 gunzip *fastq.gz
+
 #Ejecutando fastqc para las muestras
 fastqc ERR1398068_1.fastq -o fastQC/
 #Adjuntando todos los archivos de resumen obtenido de las muestras en uno solo
-cat */summary.txt > /mnt/c/Users/bff_n/desktop/Ecoli_QC/fastqc_summary.txt
+cat */summary.txt > /mnt/c/Users/bff_n/documents/GitHub/MWASHypertension/fastQC/fastqc_summary.txt
 #Llevando registro de las mustras que fallaron en los tests de fastqc
 grep -i "FAIL" fastqc_summary.txt > failedqc.txt
 ls *.fastq > ../fastq_list.txt
@@ -28,5 +39,26 @@ ls *.fastq > ../fastq_list.txt
 #Ejecutando trimmomatic para las muestras pareadas
 trimmomatic PE -phred33 ERR1398068_1.fastq ERR1398068_2.fastq 
 ERR1398068_1_paired.fq.gz ERR1398068_1_unpaired.fq.gz ERR1398068_2_paired.fq.gz ERR1398068_2_unpaired.fq.gz ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
+
+#Alineamiento de secuencias
+
+#Indexacion de genomas de referencia
+bowtie2-build bacteroides_ovatus.fasta
+
+#Alineamiento 
+bowtie2 -x bacteroides_ovatus -1 ../test/ERR1398068_1.fastq -2 ../test/ERR1398068_2.fastq -S ../test/alignment/ERR1398068_bo.sam -p 4 --time
+
+
+#Ensamblaje de genomas
+
+# megahit -1 lectura1.fastq     -2  lectura2.fastq   -t numero de threads  -o directorio de salida
+megahit -1 ERR1398068_1.fastq  -2 ERR1398068_2.fastq -t 6  -o megahit_result
+
+
+#Anotacion 
+prokka --setupdb
+prokka --outdir annotation --prefix metagenome --metagenome megahit_result/final.contigs.fa
+
+
 
 ```

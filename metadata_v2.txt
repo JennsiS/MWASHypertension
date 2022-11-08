@@ -1,0 +1,13 @@
+##sample	Trait
+ERR1398068	Hipertension
+ERR1398168	Hipertension
+ERR1398221	Hipertension
+ERR1398129	No hipertension
+ERR1398206	No hipertension
+ERR1398263	No hipertension
+ERR1398076	Hipertension
+ERR1398077	Hipertension
+ERR1398085	Hipertension
+ERR1398078	No hipertension
+ERR1398257	No hipertension
+ERR1398089	No hipertension

@@ -1,22 +1,21 @@
 ---
-title: "Quality Control for metagenome files"
+title: "MWA-pipeline"
 author: "Jennifer Sandoval"
 date: "21/07/2022"
-output: html_document
 ---
 
 ```{bash}
-#Creando un nuevo ambiente de conda para analizar variaciones geneticas
+#Creating a new enviroment for conda for Metagenommic Wide Analysis
 conda create -n mwa
 conda activate mwa
-#Instalando las herramientas necesarias para analizar las variaciones geneticas
+
+#Instaling softwares
 conda install -c bioconda fastqc
 conda install -c bioconda trimmomatic
 conda install -c bioconda megahit
 conda install -c bioconda bowtie2
 conda install -c bioconda samtools
-conda create --name mpa -c conda-forge -c bioconda python=3.7 metaphlan
-
+conda install -c bioconda trim-galore
 
 sudo cpan -i BioPerl
 conda install -c biobuilds prokka
@@ -27,71 +26,29 @@ cpan install XML::Simple
 ```{bash}
 
 
-#Descomprimiendo todos los archivos fastq.
+#Unzipping all .fastq files
 gunzip *fastq.gz
 
-#Ejecutando fastqc para las muestras
-fastqc ERR1398068_1.fastq -o fastQC/
 
-#Adjuntando todos los archivos de resumen obtenido de las muestras en uno solo
-cat */summary.txt > /mnt/c/Users/bff_n/documents/GitHub/MWASHypertension/fastQC/fastqc_summary.txt
-
-#Llevando registro de las mustras que fallaron en los tests de fastqc
-grep -i "FAIL" fastqc_summary.txt > failedqc.txt
-ls *.fastq > ../fastq_list.txt
-
-#Ejecutando trimmomatic para las muestras pareadas
-trimmomatic PE -phred33 ERR1398068_1.fastq ERR1398068_2.fastq 
-ERR1398068_1_paired.fq.gz ERR1398068_1_unpaired.fq.gz ERR1398068_2_paired.fq.gz ERR1398068_2_unpaired.fq.gz ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
-
-
+#Running trim galore for quality analysis and reading filtering
 trim_galore --paired ERR1398129_1.fastq.gz ERR1398129_2.fastq.gz --fastqc_args "-t 4 --outdir /fastqc"
 
 
-#Ensamblaje de genomas
-#APROX TIME: ALL DONE. Time elapsed: 13537.897424 seconds
-
-# megahit -1 lectura1.fastq     -2  lectura2.fastq   -t numero de threads  -o directorio de salida
-# megahit -1 ERR1398068_1.fastq  -2 ERR1398068_2.fastq -t 6  -o megahit_result
-
+#Genome assembly
 megahit -1 ERR1398168_1_val_1.fq.gz -2 ERR1398168_2_val_2.fq.gz -t 8 -o ERR1398168_assembly --tmp-dir /tmp
 
 
-#Anotacion funcional
-prokka --setupdb
-prokka --outdir annotation --metagenome megahit_result/final.contigs.fa --cpus 8
+#Functional annotation
+superfocus -q H_ERR1398168/ERR1398168_assembly/final.contigs.fasta -q H_ERR1398068/ERR1398068_assembly/final.contigs.fasta -q H_ERR1398221/ERR1398221_assembly/final.contigs.fasta -q NH_ERR1398129/ERR1398129_assembly/final.contigs.fasta  -q NH_ERR1398206/ERR1398206_assembly/final.contigs.fasta -q NH_ERR1398263/ERR1398263_assembly/final.contigs.fasta -q H_ERR1398076/ERR1398076_assembly/final.contigs.fasta -q H_ERR1398077/ERR1398077_assembly/final.contigs.fasta -q H_ERR1398085/ERR1398085_assembly/final.contigs.fasta -q NH_ERR1398078/ERR1398078_assembly/final.contigs.fasta -q NH_ERR1398257/ERR1398257_assembly/final.contigs.fasta -q NH_ERR1398089/ERR1398089_assembly/final.contigs.fasta  -dir general_output_focus_v2 -a diamond -t 8 -n 1
 
 
-#Alineamiento
-
-bowtie2-build -f ./megahit_result/final.contigs.fa output_bowtie
-
-bowtie2 -p 6 --no-discordant -x output_bowtie -1 ../ERR1398068_1.fastq -2 ../ERR1398068_2.fastq -S ERR1398068.sam
-
-
-#samtools
-
-samtools view -@ 4 -h -Sb ERR1398068.sam | samtools sort -@ 4 > ../samtools/ERR1398068.bam
-
-samtools index ERR1398068.bam
-samtools idxstats  ERR1398068.bam > bami_ERR1398068.txt
-
-
-awk -F"[\t;]" '$3=="CDS"{print $1"\t"$4"\t"$5"\t"$9}' ../prokka/ERR1398068.gff | sed 's/ID=//g'> ERR1398068_gene_scf-area_mght.txt
-
-awk '{print $1"\t"($2-1)"\t"($3)}' ERR1398068_gene_scf-area_mght.txt > ERR1398068_scf-area_mght.bed
-
-
-samtools bedcov ERR1398068_scf-area_mght.bed ERR1398068.bam | paste ERR1398068_gene_scf-area_mght.txt - | awk '{print $4"\t"$8/($7-$6)}' | awk '$2!=0' | sort -k 1,1 | awk '{print "ERR1398068_"$0}' > ERR1398068_gene_abundance_mght.txt
-
-
-#----------------- Using kraken
-#/mnt/d/tools/kraken/kraken --db minikraken_20171013_4GB/ --paired ../MWA/H_ERR1398221/ERR1398221_1_val_1.fq.gz ../MWA/H_ERR1398221/ERR1398221_2_val_2.fq.gz --output sample1_kraken.out
-
+#Taxonomic profiling
 /mnt/d/tools/kraken/kraken --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/ERR1398076_assembly/final.contigs.fasta --output ../MWA/ERR1398076_kraken.out --threads 8
 
+#Parse kraken output file
 cut -f2,3 ./kraken/ERR1398076_kraken.out > ./kraken/ERR1398076_kraken.krona.in
 
+#Generating krona visualization for taxonomic profiles
 ktImportTaxonomy ./kraken/ERR1398076_kraken.krona.in -o ./kraken/ERR1392076_krona.html
 
 /mnt/d/tools/kraken/kraken-report --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.out > ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.rpt

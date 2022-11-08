@@ -3,7 +3,7 @@
 This project is an implementation of a pipeline for metagenomic analysis using hypertension as a case study.
 
 ## Samples
-The samples used for the implementation were obtained from the study <em>Dysbiosis of gut microbiota contributes to the pathogenesis of hypertension</em>, these samples can be found in the following project in ENA: (PRJEB13870)[https://www.ebi.ac.uk/ena/browser/view/PRJEB13870]
+The samples used for the implementation were obtained from the study <em>Dysbiosis of gut microbiota contributes to the pathogenesis of hypertension</em>, these samples can be found in the following project in ENA: [PRJEB13870](https://www.ebi.ac.uk/ena/browser/view/PRJEB13870)
 
 
 ## Requirements
@@ -22,3 +22,6 @@ Tool | Use |
 [STAMP](https://beikolab.cs.dal.ca/software/STAMP) | Analyze taxonomic profiles |
 [Seaborn](https://seaborn.pydata.org/) | Graphics |
 [SIAMCAT](https://siamcat.embl.de/index.html) | Implementation and generation of machine learning models |
+
+## Results 
+The main results can be found in the [results folder](results/)

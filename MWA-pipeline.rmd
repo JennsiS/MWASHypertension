@@ -53,20 +53,9 @@ ktImportTaxonomy ./kraken/ERR1398076_kraken.krona.in -o ./kraken/ERR1392076_kron
 
 /mnt/d/tools/kraken/kraken-report --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.out > ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.rpt
 
-
+#Generating a taxonomic profile report for 
 /mnt/d/tools/kraken/kraken-mpa-report --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.out ../MWA/H_ERR1398077/kraken/ERR1398077_kraken.out ../MWA/H_ERR1398085/kraken/ERR1398085_kraken.out ../MWA/H_ERR13980168/kraken/ERR13980168_kraken.out ../MWA/H_ERR1398068/kraken/ERR1398068_kraken.out ../MWA/H_ERR1398221/kraken/ERR1398221_kraken.out ../MWA/NH_ERR1398129/kraken/ERR1398129_kraken.out ../MWA/NH_ERR1398206/kraken/ERR1398206_kraken.out ../MWA/NH_ERR1398263/kraken/ERR1398263_kraken.out ../MWA/NH_ERR1398078/kraken/ERR1398078_kraken.out ../MWA/NH_ERR1398257/kraken/ERR1398257_kraken.out ../MWA/NH_ERR1398089/kraken/ERR1398089_kraken.out > all_samples_report.txt
 
 
-
-
-
-
-# python combine_kreports.py -r ../../MWA/H_ERR1398068/kraken/ERR1398068_kraken.rpt ../../MWA/H_ERR1398168/kraken/ERR1398168_kraken.rpt ../../MWA/H_ERR1398221/kraken/ERR1398221_kraken.rpt ../../MWA/H_ERR1398076/kraken/ERR1398076_kraken.rpt ../../MWA/H_ERR1398077/kraken/ERR1398077_kraken.rpt ../../MWA/H_ERR1398085/kraken/ERR1398085_kraken.rpt ../../MWA/NH_ERR1398129/kraken/ERR1398129_kraken.rpt ../../MWA/NH_ERR1398206/kraken/ERR1398206_kraken.rpt ../../MWA/NH_ERR1398263/kraken/ERR1398263_kraken.rpt ../../MWA/NH_ERR1398078/kraken/ERR1398078_kraken.rpt ../../MWA/NH_ERR1398257/kraken/ERR1398257_kraken.rpt ../../MWA/NH_ERR1398089/kraken/ERR1398089_kraken.rpt
-
-
-
-#Using superfocus
-
-superfocus -q H_ERR1398168/ERR1398168_assembly/final.contigs.fasta -q H_ERR1398068/ERR1398068_assembly/final.contigs.fasta -q H_ERR1398221/ERR1398221_assembly/final.contigs.fasta -q NH_ERR1398129/ERR1398129_assembly/final.contigs.fasta  -q NH_ERR1398206/ERR1398206_assembly/final.contigs.fasta -q NH_ERR1398263/ERR1398263_assembly/final.contigs.fasta -q H_ERR1398076/ERR1398076_assembly/final.contigs.fasta -q H_ERR1398077/ERR1398077_assembly/final.contigs.fasta -q H_ERR1398085/ERR1398085_assembly/final.contigs.fasta -q NH_ERR1398078/ERR1398078_assembly/final.contigs.fasta -q NH_ERR1398257/ERR1398257_assembly/final.contigs.fasta -q NH_ERR1398089/ERR1398089_assembly/final.contigs.fasta  -dir general_output_focus_v2 -a diamond -t 8 -n 1
 
 ```

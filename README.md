@@ -2,6 +2,9 @@
 
 This project is an implementation of a pipeline for metagenomic analysis using hypertension as a case study.
 
+## Samples
+The samples used for the implementation were obtained from the study <em>Dysbiosis of gut microbiota contributes to the pathogenesis of hypertension</em>, these samples can be found in the following project in ENA: (PRJEB13870)[https://www.ebi.ac.uk/ena/browser/view/PRJEB13870]
+
 
 ## Requirements
 

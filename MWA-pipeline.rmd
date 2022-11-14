@@ -17,17 +17,11 @@ conda install -c bioconda bowtie2
 conda install -c bioconda samtools
 conda install -c bioconda trim-galore
 
-sudo cpan -i BioPerl
-conda install -c biobuilds prokka
-cpan install XML::Simple
-
 ```
 
 ```{bash}
 
 
-#Unzipping all .fastq files
-gunzip *fastq.gz
 
 
 #Running trim galore for quality analysis and reading filtering
@@ -59,3 +53,5 @@ ktImportTaxonomy ./kraken/ERR1398076_kraken.krona.in -o ./kraken/ERR1392076_kron
 
 
 ```
+
+

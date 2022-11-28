@@ -21,34 +21,42 @@ conda install -c bioconda trim-galore
 
 ```{bash}
 
+#List of metagenomes codes
+codes=(ERR1398068 ERR1398168 ERR1398221 ERR1398076 ERR1398077 ERR1398085 ERR1398129 ERR1398206 ERR1398263 ERR1398078 ERR1398257 ERR1398089)
+printf "%s\n" "${codes[@]}" > list_metagenomes.txt
+
+#Read the list of codes metagenomes
+metagenomes_codes=(`cat "list_metagenomes.txt"`)
+
+for sample in ${metagenomes_codes[*]}; do
+    echo $sample
+	mkdir $sample
+    #Quality control and trimming samples
+    trim_galore --paired ./samples/${sample}_1.fastq.gz ./samples/${sample}_2.fastq.gz -o ./$sample;
+
+    #Metagenome assembly 
+    cd $sample
+    megahit -1 ./${sample}_1_val_1.fq.gz -2 ${sample}_2_val_2.fq.gz -t 8 -o ${sample}_assembly --tmp-dir /tmp
+
+    #Taxonomic profiling using kraken
+    kraken --db ../minikraken_20171013_4GB/ ./${sample}_assembly/final.contigs.fasta --output ./kraken/${sample}_kraken.out --threads 8
+
+    #Parse kraken output file
+    cut -f2,3 ./kraken/${sample}_kraken.out > ./kraken/${sample}_kraken.krona.in
+    #Generating krona visualization for taxonomic profiles
+    ktImportTaxonomy ./kraken/${sample}_kraken.krona.in -o ./kraken/${sample}_krona.html
+
+    #Generating kraken report
+    kraken-report --db ../minikraken_20171013_4GB/ ./kraken/${sample}_kraken.out > ./kraken/${sample}_kraken.rpt
+done
 
 
+#Functional annotation and relative abundances
+superfocus -q ${codes[0]}/${codes[0]}_assembly/final.contigs.fasta -q ${codes[1]}/${codes[1]}_assembly/final.contigs.fasta -q ${codes[2]}/${codes[2]}_assembly/final.contigs.fasta -q ${codes[3]}/${codes[3]}_assembly/final.contigs.fasta  -q ${codes[4]}/${codes[4]}_assembly/final.contigs.fasta -q ${codes[5]}/${codes[5]}_assembly/final.contigs.fasta -q ${codes[6]}/${codes[6]}_assembly/final.contigs.fasta -q ${codes[7]}/${codes[7]}_assembly/final.contigs.fasta -q ${codes[8]}/${codes[8]}_assembly/final.contigs.fasta -q ${codes[9]}/${codes[9]}_assembly/final.contigs.fasta -q ${codes[10]}/${codes[10]}_assembly/final.contigs.fasta -q ${codes[11]}/${codes[11]}_assembly/final.contigs.fasta  -dir general_output_focus_v2 -a diamond -t 8 -n 1
 
-#Running trim galore for quality analysis and reading filtering
-trim_galore --paired ERR1398129_1.fastq.gz ERR1398129_2.fastq.gz --fastqc_args "-t 4 --outdir /fastqc"
-
-
-#Genome assembly
-megahit -1 ERR1398168_1_val_1.fq.gz -2 ERR1398168_2_val_2.fq.gz -t 8 -o ERR1398168_assembly --tmp-dir /tmp
-
-
-#Functional annotation
-superfocus -q H_ERR1398168/ERR1398168_assembly/final.contigs.fasta -q H_ERR1398068/ERR1398068_assembly/final.contigs.fasta -q H_ERR1398221/ERR1398221_assembly/final.contigs.fasta -q NH_ERR1398129/ERR1398129_assembly/final.contigs.fasta  -q NH_ERR1398206/ERR1398206_assembly/final.contigs.fasta -q NH_ERR1398263/ERR1398263_assembly/final.contigs.fasta -q H_ERR1398076/ERR1398076_assembly/final.contigs.fasta -q H_ERR1398077/ERR1398077_assembly/final.contigs.fasta -q H_ERR1398085/ERR1398085_assembly/final.contigs.fasta -q NH_ERR1398078/ERR1398078_assembly/final.contigs.fasta -q NH_ERR1398257/ERR1398257_assembly/final.contigs.fasta -q NH_ERR1398089/ERR1398089_assembly/final.contigs.fasta  -dir general_output_focus_v2 -a diamond -t 8 -n 1
-
-
-#Taxonomic profiling
-/mnt/d/tools/kraken/kraken --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/ERR1398076_assembly/final.contigs.fasta --output ../MWA/ERR1398076_kraken.out --threads 8
-
-#Parse kraken output file
-cut -f2,3 ./kraken/ERR1398076_kraken.out > ./kraken/ERR1398076_kraken.krona.in
-
-#Generating krona visualization for taxonomic profiles
-ktImportTaxonomy ./kraken/ERR1398076_kraken.krona.in -o ./kraken/ERR1392076_krona.html
-
-/mnt/d/tools/kraken/kraken-report --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.out > ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.rpt
 
 #Generating a taxonomic profile report for 
-/mnt/d/tools/kraken/kraken-mpa-report --db minikraken_20171013_4GB/ ../MWA/H_ERR1398076/kraken/ERR1398076_kraken.out ../MWA/H_ERR1398077/kraken/ERR1398077_kraken.out ../MWA/H_ERR1398085/kraken/ERR1398085_kraken.out ../MWA/H_ERR13980168/kraken/ERR13980168_kraken.out ../MWA/H_ERR1398068/kraken/ERR1398068_kraken.out ../MWA/H_ERR1398221/kraken/ERR1398221_kraken.out ../MWA/NH_ERR1398129/kraken/ERR1398129_kraken.out ../MWA/NH_ERR1398206/kraken/ERR1398206_kraken.out ../MWA/NH_ERR1398263/kraken/ERR1398263_kraken.out ../MWA/NH_ERR1398078/kraken/ERR1398078_kraken.out ../MWA/NH_ERR1398257/kraken/ERR1398257_kraken.out ../MWA/NH_ERR1398089/kraken/ERR1398089_kraken.out > all_samples_report.txt
+kraken-mpa-report --db minikraken_20171013_4GB/ ./${codes[0]}/kraken/${codes[0]}_kraken.out ./${codes[1]}/kraken/${codes[1]}_kraken.out ./${codes[2]}/kraken/${codes[2]}_kraken.out ./${codes[3]}/kraken/${codes[3]}_kraken.out ./${codes[4]}/kraken/${codes[4]}_kraken.out ./${codes[5]}/kraken/${codes[5]}_kraken.out ./${codes[6]}/kraken/${codes[6]}_kraken.out ./${codes[7]}/kraken/${codes[7]}_kraken.out ./${codes[7]}/kraken/${codes[7]}_kraken.out ./${codes[8]}/kraken/${codes[8]}_kraken.out ./${codes[9]}/kraken/${codes[9]}_kraken.out ./${codes[10]}/kraken/${codes[10]}_kraken.out ./${codes[11]}/kraken/${codes[11]}_kraken.out> all_samples_report.txt
 
 
 
